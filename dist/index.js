@@ -39121,6 +39121,7 @@ async function action() {
             core.info(`changedFiles: ${(0, util_1.debug)(changedFiles)}`);
         const reportsJsonAsync = getJsonReports(reportPaths, debugMode);
         const reports = await reportsJsonAsync;
+        core.info(reports);
         const project = (0, process_1.getProjectCoverage)(reports, changedFiles);
         if (debugMode)
             core.info(`project: ${(0, util_1.debug)(project)}`);
@@ -39269,6 +39270,7 @@ async function getPrNumberAssociatedWithCommit(client, commitSha) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getProjectCoverage = getProjectCoverage;
+const core = __importStar(__nccwpck_require__(6024));
 const util_1 = __nccwpck_require__(2090);
 function getProjectCoverage(reports, changedFiles) {
     core.info("In Project Coverage calculation")
