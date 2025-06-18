@@ -39063,7 +39063,6 @@ async function action() {
         if (debugMode) {
             core.info(`passEmoji: ${passEmoji}`);
             core.info(`failEmoji: ${failEmoji}`);
-            core.info(`ANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`);
         }
         const commentType = core.getInput('comment-type');
         if (debugMode) {
@@ -39178,6 +39177,10 @@ async function getJsonReports(xmlPaths, debugMode) {
     }));
 }
 async function getChangedFiles(base, head, client, debugMode) {
+    core.info(github.context.repo.owner)
+    core.info(github.context.repo.repo)
+    core.info(base)
+    core.info(head)
     const response = await client.rest.repos.compareCommits({
         base,
         head,
@@ -39268,6 +39271,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getProjectCoverage = getProjectCoverage;
 const util_1 = __nccwpck_require__(2090);
 function getProjectCoverage(reports, changedFiles) {
+    core.info("In Project Coverage calculation")
     const moduleCoverages = [];
     const modules = getModulesFromReports(reports);
     for (const module of modules) {
@@ -39306,6 +39310,7 @@ function toFloat(value) {
     return parseFloat(value.toFixed(2));
 }
 function getModulesFromReports(reports) {
+    core.info("Reports: " + reports)
     const modules = [];
     for (const report of reports) {
         const groupTag = report.group;
@@ -39315,10 +39320,12 @@ function getModulesFromReports(reports) {
                 const module = getModuleFromParent(group);
                 if (module) {
                     modules.push(module);
+                    core.info("Module: " + module)
                 }
             }
         }
         const module = getModuleFromParent(report);
+        core.info("Parent Module: "+ module)
         if (module) {
             modules.push(module);
         }
