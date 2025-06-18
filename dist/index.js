@@ -39063,6 +39063,7 @@ async function action() {
         if (debugMode) {
             core.info(`passEmoji: ${passEmoji}`);
             core.info(`failEmoji: ${failEmoji}`);
+            core.info(`ANNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`);
         }
         const commentType = core.getInput('comment-type');
         if (debugMode) {
