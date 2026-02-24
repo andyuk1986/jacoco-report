@@ -645,6 +645,143 @@ describe('Single report', function () {
       expect(createComment.mock.calls[0][0].body).toEqual(ONLY_PROJECT_COMMENT)
     })
 
+    it('when payload has no pull_requests but has head_sha, use head_sha as head', async () => {
+      const headSha = 'workflow_run_head_sha_abc123'
+      const payloadWithHeadSha = {
+        workflow_run: {
+          pull_requests: [],
+          head_sha: headSha,
+        },
+      }
+      initContext(eventName, payloadWithHeadSha)
+      core.getInput = jest.fn(key => {
+        switch (key) {
+          case 'pr-number':
+            return 45
+          default:
+            return getInput(key)
+        }
+      })
+
+      const compareCommits = jest.fn(({base, head}) => {
+        expect(head).toEqual(headSha)
+        if (base !== head) {
+          return compareCommitsResponse
+        } else {
+          return {data: {files: []}}
+        }
+      })
+      github.getOctokit = jest.fn(() => {
+        return {
+          rest: {
+            repos: {
+              compareCommits,
+              listPullRequestsAssociatedWithCommit: jest.fn(() => {
+                return {data: []}
+              }),
+            },
+            issues: {
+              createComment,
+              listComments,
+              updateComment,
+            },
+          },
+        }
+      })
+
+      await action.action()
+
+      expect(compareCommits).toHaveBeenCalled()
+    })
+
+    it('when payload has no pull_requests and head_sha is empty, head remains as context sha', async () => {
+      const payloadWithEmptyHeadSha = {
+        workflow_run: {
+          pull_requests: [],
+          head_sha: '',
+        },
+      }
+      initContext(eventName, payloadWithEmptyHeadSha)
+      core.getInput = jest.fn(key => {
+        switch (key) {
+          case 'pr-number':
+            return 45
+          default:
+            return getInput(key)
+        }
+      })
+
+      const compareCommits = jest.fn(({base, head}) => {
+        expect(head).toEqual(github.context.sha)
+        return {data: {files: []}}
+      })
+      github.getOctokit = jest.fn(() => {
+        return {
+          rest: {
+            repos: {
+              compareCommits,
+              listPullRequestsAssociatedWithCommit: jest.fn(() => {
+                return {data: []}
+              }),
+            },
+            issues: {
+              createComment,
+              listComments,
+              updateComment,
+            },
+          },
+        }
+      })
+
+      await action.action()
+
+      expect(compareCommits).toHaveBeenCalled()
+    })
+
+    it('when payload has no pull_requests and head_sha is null, head remains as context sha', async () => {
+      const payloadWithNullHeadSha = {
+        workflow_run: {
+          pull_requests: [],
+          head_sha: null,
+        },
+      }
+      initContext(eventName, payloadWithNullHeadSha)
+      core.getInput = jest.fn(key => {
+        switch (key) {
+          case 'pr-number':
+            return 45
+          default:
+            return getInput(key)
+        }
+      })
+
+      const compareCommits = jest.fn(({base, head}) => {
+        expect(head).toEqual(github.context.sha)
+        return {data: {files: []}}
+      })
+      github.getOctokit = jest.fn(() => {
+        return {
+          rest: {
+            repos: {
+              compareCommits,
+              listPullRequestsAssociatedWithCommit: jest.fn(() => {
+                return {data: []}
+              }),
+            },
+            issues: {
+              createComment,
+              listComments,
+              updateComment,
+            },
+          },
+        }
+      })
+
+      await action.action()
+
+      expect(compareCommits).toHaveBeenCalled()
+    })
+
     it('set overall coverage output', async () => {
       initContext(eventName, payload)
       core.setOutput = output

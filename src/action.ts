@@ -91,13 +91,25 @@ export async function action(): Promise<void> {
       case 'workflow_run':
         const pullRequests =
           github.context.payload?.workflow_run?.pull_requests ?? []
+          core.info("HEAD SHA: "+ pullRequests);
+
         if (pullRequests.length !== 0) {
+            core.info("Is inside this if.")
+
           base = pullRequests[0]?.base?.sha
           head = pullRequests[0]?.head?.sha
           prNumber = prNumber ?? pullRequests[0]?.number
         } else {
+            core.info("Is inside COORRECT if.")
+
+          if (
+            github.context.payload?.workflow_run?.head_sha != null &&
+            github.context.payload?.workflow_run?.head_sha != ''
+          )
+            head = github.context.payload?.workflow_run?.head_sha
           prNumber =
             prNumber ?? (await getPrNumberAssociatedWithCommit(client, sha))
+            core.info("HEAD SHA: "+ github.context.payload?.workflow_run?.head_sha + " " + head);
         }
         break
       default:
